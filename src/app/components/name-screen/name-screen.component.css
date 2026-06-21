@@ -1,0 +1,32 @@
+.name-input {
+  width: 100%; padding: 14px 15px; border: 1.5px solid #d9e3dc;
+  border-radius: 12px; font-size: 16px; background: #f8fbf8;
+  outline: none; color: #28302b;
+}
+.name-input:focus { border-color: #2f6b4f; }
+
+.sug-dropdown {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: #fff; border: 1px solid #d9e3dc; border-radius: 12px;
+  box-shadow: 0 14px 30px rgba(40,58,48,.14); overflow: hidden; z-index: 5;
+}
+
+.sug-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; cursor: pointer;
+}
+.sug-item:hover { background: #e8f1eb; }
+
+.sug-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #e2efe8; color: #23533a;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; flex: 0 0 auto;
+}
+
+.continue-btn {
+  width: 100%; margin-top: 16px; padding: 14px;
+  background: #2f6b4f; color: #fff; border: none;
+  border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+}
+.continue-btn:hover { background: #23533a; }

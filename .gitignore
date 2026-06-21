@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+netlify/functions/node_modules/
+
+# Build output
+dist/
+.angular/
+
+# Env / secrets — NEVER commit the service account key
+.env
+.env.local
+*.json.bak
+sadhana-report-*.json
+
+# IDE
+.vscode/
+.idea/
+
+# Netlify
+.netlify/

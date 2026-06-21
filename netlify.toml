@@ -1,0 +1,23 @@
+[build]
+  command = "npm run build"
+  publish = "dist/sadhana-report/browser"
+
+[dev]
+  framework = "#custom"
+  command = "ng serve"
+  targetPort = 4200
+  port = 8888
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

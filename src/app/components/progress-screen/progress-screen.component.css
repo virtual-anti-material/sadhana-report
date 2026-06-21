@@ -1,0 +1,6 @@
+.screen-title { font-family:'Spectral',serif; font-weight:600; font-size:26px; margin:0 0 4px; }
+.card { background:#fff; border:1px solid #d9e3dc; border-radius:18px; padding:16px; box-shadow:0 4px 14px rgba(40,58,48,.04); }
+.month-nav { display:flex; align-items:center; justify-content:space-between; gap:10px; background:#fff; border:1px solid #d9e3dc; border-radius:14px; padding:10px 12px; box-shadow:0 4px 14px rgba(40,58,48,.04); }
+.nav-btn { width:40px; height:40px; border-radius:11px; border:1px solid #d9e3dc; background:#f8fbf8; font-size:20px; color:#28302b; cursor:pointer; flex:0 0 auto; }
+.nav-btn:hover { background:#e8f1eb; }
+.color-dot { width:10px; height:10px; border-radius:3px; display:inline-block; }

@@ -1,0 +1,24 @@
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 11px;
+  border: 1px solid #d9e3dc; background: #fff;
+  color: #7d8a82; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; flex: 0 0 auto;
+}
+.icon-btn:hover { border-color: #d9694e; color: #c0492f; }
+
+.tab-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 3px; background: none; border: none; cursor: pointer;
+  padding: 7px 4px; font-size: 11px; font-weight: 600; font-family: inherit;
+}
+
+.toast {
+  position: fixed; bottom: 140px; left: 50%;
+  transform: translateX(-50%);
+  background: #28302b; color: #fff;
+  padding: 11px 22px; border-radius: 999px;
+  font-size: 14px; font-weight: 600; z-index: 20;
+  animation: toastin .25s ease both;
+  box-shadow: 0 12px 26px rgba(0,0,0,.22);
+  white-space: nowrap;
+}

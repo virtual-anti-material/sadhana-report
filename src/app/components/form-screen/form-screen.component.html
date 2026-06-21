@@ -1,0 +1,117 @@
+<div style="max-width:620px;margin:0 auto;padding:20px 16px 200px;animation:scfade .35s ease both">
+
+  <!-- Date nav card -->
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button (click)="onPrev()" class="nav-btn">‹</button>
+      <div style="flex:1;text-align:center">
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px">
+          <span style="font-family:'Spectral',serif;font-size:22px;font-weight:600">{{ meta.weekday }}</span>
+          @if (meta.hasRelative) {
+            <span class="badge-green">{{ meta.relative }}</span>
+          }
+        </div>
+        <div style="font-size:14px;color:#7d8a82;margin-top:2px">{{ meta.dateMain }}</div>
+      </div>
+      <button (click)="onNext()" [style]="meta.nextBtnStyle">›</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #e4ede7">
+      <span style="font-size:13px;color:#a4b1a8">Jump to</span>
+      <input type="date" [value]="state.selectedDate()" [max]="meta.today" (change)="onDateChange($event)" class="date-input">
+      <span style="font-size:13px;font-weight:600" [style.color]="meta.statusColor">{{ meta.statusLabel }}</span>
+    </div>
+  </div>
+
+  <!-- Field groups -->
+  <div style="margin-top:16px;display:flex;flex-direction:column;gap:14px">
+    @for (group of groups; track group.title) {
+      <div class="card">
+        <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:18px;margin:0 0 15px;color:#28302b">{{ group.title }}</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+          @for (field of group.fields; track field.key) {
+            <div>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px;gap:8px">
+                <label style="font-size:14.5px;font-weight:600;color:#45514a">
+                  {{ field.label }}
+                  @if (field.required) { <span style="color:#2f6b4f;font-weight:700"> *</span> }
+                </label>
+                @if (field.hasUnit) { <span style="font-size:12px;color:#a4b1a8;white-space:nowrap">{{ field.unit }}</span> }
+              </div>
+
+              @if (field.isTextarea) {
+                <textarea
+                  class="field-input textarea"
+                  [value]="field.value"
+                  (input)="field.onChange($event)"
+                  [placeholder]="field.placeholder"
+                ></textarea>
+              }
+
+              @if (field.isInput) {
+                <input
+                  class="field-input"
+                  [type]="field.inputType"
+                  [inputMode]="field.inputMode"
+                  [value]="field.value"
+                  (input)="field.onChange($event)"
+                  [placeholder]="field.placeholder"
+                  [style.border-color]="field.borderColor"
+                >
+              }
+
+              @if (field.isTime) {
+                <div style="position:relative">
+                  <div (click)="field.onToggle!()" [style]="field.fieldStyle">
+                    <span>{{ field.timeText }}</span>
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7d8a82" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="8.4"/><path d="M12 7.5 V12 L15.2 14"/>
+                    </svg>
+                  </div>
+                  @if (field.pickerOpen) {
+                    <div (click)="field.onClose!()" style="position:fixed;inset:0;z-index:30"></div>
+                    <div class="time-picker">
+                      <div style="display:flex;gap:11px">
+                        <div style="flex:1;min-width:0">
+                          <div class="picker-label">Hour</div>
+                          <div class="picker-grid">
+                            @for (h of field.hours; track h.label) {
+                              <div (click)="h.onClick()" [style]="h.style" class="picker-cell">{{ h.label }}</div>
+                            }
+                          </div>
+                        </div>
+                        <div style="width:1px;background:#e4ede7;flex:0 0 auto"></div>
+                        <div style="flex:1;min-width:0">
+                          <div class="picker-label">Minute</div>
+                          <div class="picker-grid">
+                            @for (mn of field.minutes; track mn.label) {
+                              <div (click)="mn.onClick()" [style]="mn.style" class="picker-cell">{{ mn.label }}</div>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                      <div style="font-size:11.5px;color:#a4b1a8;text-align:center;margin-top:9px;padding-top:9px;border-top:1px solid #e4ede7">24-hour time · tap to select</div>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (field.isError) {
+                <div style="font-size:12.5px;color:#c0492f;margin-top:5px;font-weight:600">This field is required.</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Save footer -->
+<div class="save-footer">
+  <div style="max-width:620px;margin:0 auto;display:flex;gap:12px;align-items:center">
+    <span [style.color]="meta.footerColor" [style.font-weight]="meta.footerWeight" style="font-size:13.5px;flex:1;line-height:1.4">
+      {{ meta.footerText }}
+    </span>
+    <button (click)="state.save()" class="save-btn">{{ meta.saveLabel }}</button>
+  </div>
+</div>

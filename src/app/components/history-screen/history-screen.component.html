@@ -1,0 +1,70 @@
+@if (prog) {
+<div style="max-width:560px;margin:0 auto;padding:22px 16px 96px;animation:scfade .35s ease both">
+  <h2 class="screen-title">Your history</h2>
+  <p style="margin:0 0 18px;color:#7d8a82;font-size:14.5px">Tap any day to revisit it. Days you logged are highlighted.</p>
+
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <!-- Stat cards -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      @for (c of prog.statCards; track c.label) {
+        <div class="stat-card">
+          <div class="stat-value">{{ c.value }}</div>
+          <div class="stat-label">{{ c.label }}</div>
+        </div>
+      }
+    </div>
+
+    <!-- Calendar -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+        <button (click)="prog.onPrev()" class="nav-btn">‹</button>
+        <span style="font-family:'Spectral',serif;font-size:19px;font-weight:600">{{ prog.monthLabel }}</span>
+        <button (click)="prog.onNext && prog.onNext()" [style]="prog.nextStyle">›</button>
+      </div>
+      <div class="weekday-row">
+        @for (w of prog.weekdays; track $index) { <div>{{ w }}</div> }
+      </div>
+      <div class="cal-grid">
+        @for (c of prog.cells; track $index) {
+          <div (click)="c.onClick && c.onClick()" [style]="c.style">{{ c.label }}</div>
+        }
+      </div>
+      <div class="legend">
+        <div class="legend-item"><span class="dot" style="background:#e2efe8"></span><span>Logged</span></div>
+        <div class="legend-item"><span class="dot" style="border:2px solid #c2a15a"></span><span>Today</span></div>
+        <div class="legend-item"><span class="dot" style="background:#2f6b4f"></span><span>Selected</span></div>
+      </div>
+    </div>
+
+    <!-- Entry detail -->
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <span style="font-family:'Spectral',serif;font-size:19px;font-weight:600">{{ prog.detail.weekday }}</span>
+        @if (prog.detail.hasRelative) { <span class="badge-green">{{ prog.detail.relative }}</span> }
+      </div>
+      <div style="font-size:13.5px;color:#7d8a82">{{ prog.detail.dateMain }}</div>
+
+      @if (prog.detail.exists) {
+        <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:13px">
+          @for (r of prog.detail.rows; track r.label) {
+            <div>
+              <div class="field-label">{{ r.label }}</div>
+              <div style="font-size:14.5px;color:#28302b">{{ r.value }}</div>
+            </div>
+          }
+        </div>
+        @if (prog.detail.canEdit) {
+          <button (click)="prog.detail.onEdit!()" class="edit-btn">Edit this day</button>
+        }
+      }
+
+      @if (prog.detail.notExists) {
+        <div class="empty-box">{{ prog.detail.emptyText }}</div>
+        @if (prog.detail.canAdd) {
+          <button (click)="prog.detail.onEdit!()" class="add-btn">Add entry for this day</button>
+        }
+      }
+    </div>
+  </div>
+</div>
+}

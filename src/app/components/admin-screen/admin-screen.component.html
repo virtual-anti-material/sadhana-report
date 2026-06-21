@@ -1,0 +1,129 @@
+<div style="max-width:620px;margin:0 auto;padding:22px 16px 96px;animation:scfade .35s ease both">
+
+  <!-- Member list -->
+  @if (!admTarget) {
+    <h2 class="screen-title">Family members</h2>
+    <p style="margin:0 0 18px;color:#7d8a82;font-size:14.5px">Tap a member to open their full sadhana history and progress.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      @for (m of members; track m.name) {
+        <div (click)="m.onOpen()" class="member-row">
+          <div class="avatar" [style]="m.avatarStyle">{{ m.initial }}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:16px;font-weight:600">{{ m.name }}</span>
+              @if (m.isAdmin) { <span class="badge-admin">Admin</span> }
+            </div>
+            <div style="font-size:13px;color:#7d8a82;margin-top:2px">{{ m.caption }}</div>
+          </div>
+          <span style="font-size:22px;color:#b1bdb4;flex:0 0 auto">›</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Member detail -->
+  @if (admTarget && adm && admMeta) {
+    <button (click)="goBack()" class="back-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 5 L8 12 L15 19"/>
+      </svg>
+      Back
+    </button>
+
+    <div style="display:flex;align-items:center;gap:13px;margin-bottom:18px">
+      <div class="avatar lg" [style]="admMeta.avatarStyle">{{ admMeta.initial }}</div>
+      <div>
+        <h2 style="font-family:'Spectral',serif;font-weight:600;font-size:23px;margin:0">{{ admMeta.name }}</h2>
+        <div style="font-size:13px;color:#7d8a82">{{ admMeta.subLabel }}</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <!-- Stat cards -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        @for (c of adm.statCards; track c.label) {
+          <div class="stat-card">
+            <div class="stat-value">{{ c.value }}</div>
+            <div class="stat-label">{{ c.label }}</div>
+          </div>
+        }
+      </div>
+
+      <!-- Calendar -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+          <button (click)="adm.onPrev()" class="nav-btn">‹</button>
+          <span style="font-family:'Spectral',serif;font-size:19px;font-weight:600">{{ adm.monthLabel }}</span>
+          <button (click)="adm.onNext && adm.onNext()" [style]="adm.nextStyle">›</button>
+        </div>
+        <div class="weekday-row">
+          @for (w of adm.weekdays; track $index) { <div>{{ w }}</div> }
+        </div>
+        <div class="cal-grid">
+          @for (c of adm.cells; track $index) {
+            <div (click)="c.onClick && c.onClick()" [style]="c.style">{{ c.label }}</div>
+          }
+        </div>
+        <div class="legend">
+          <div class="legend-item"><span class="dot" style="background:#e2efe8"></span><span>Logged</span></div>
+          <div class="legend-item"><span class="dot" style="border:2px solid #c2a15a"></span><span>Today</span></div>
+          <div class="legend-item"><span class="dot" style="background:#2f6b4f"></span><span>Selected</span></div>
+        </div>
+      </div>
+
+      <!-- Entry detail -->
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+          <span style="font-family:'Spectral',serif;font-size:19px;font-weight:600">{{ adm.detail.weekday }}</span>
+          @if (adm.detail.hasRelative) { <span class="badge-green">{{ adm.detail.relative }}</span> }
+        </div>
+        <div style="font-size:13.5px;color:#7d8a82">{{ adm.detail.dateMain }}</div>
+        @if (adm.detail.exists) {
+          <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:13px">
+            @for (r of adm.detail.rows; track r.label) {
+              <div>
+                <div class="field-label">{{ r.label }}</div>
+                <div style="font-size:14.5px;color:#28302b">{{ r.value }}</div>
+              </div>
+            }
+          </div>
+        }
+        @if (adm.detail.notExists) {
+          <div class="empty-box">{{ adm.detail.emptyText }}</div>
+        }
+      </div>
+
+      <!-- Practice trends -->
+      @if (admCharts) {
+        <div style="font-family:'Spectral',serif;font-size:18px;font-weight:600;margin-top:6px">Practice trends</div>
+        <div class="month-nav">
+          <button (click)="admCharts.onPrev()" class="nav-btn">‹</button>
+          <span style="font-family:'Spectral',serif;font-size:19px;font-weight:600">{{ admCharts.monthLabel }}</span>
+          <button (click)="admCharts.onNext && admCharts.onNext()" [style]="admCharts.nextStyle">›</button>
+        </div>
+        @for (chart of admCharts.list; track chart.title) {
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="color-dot" [style.background]="chart.color"></span>
+                <span style="font-family:'Spectral',serif;font-size:17px;font-weight:600">{{ chart.title }}</span>
+              </div>
+              <span style="font-size:12px;color:#7d8a82">{{ chart.caption }}</span>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:3px;height:90px">
+              @for (b of chart.bars; track $index) {
+                <div [title]="b.title" [style.flex]="'1'" [style.height]="b.h + '%'" [style.min-height]="'2px'" [style.background]="b.barColor" style="border-radius:2px 2px 0 0"></div>
+              }
+            </div>
+            <div style="display:flex;gap:3px;margin-top:5px">
+              @for (b of chart.bars; track $index) {
+                <div style="flex:1;text-align:center;font-size:9px;color:#b1bdb4;line-height:1">{{ b.tick }}</div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+
+</div>

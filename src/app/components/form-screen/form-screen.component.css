@@ -1,0 +1,59 @@
+.card {
+  background: #fff; border: 1px solid #d9e3dc; border-radius: 18px;
+  padding: 18px; box-shadow: 0 6px 18px rgba(40,58,48,.05);
+}
+
+.nav-btn {
+  width: 46px; height: 46px; border-radius: 13px; border: 1px solid #d9e3dc;
+  background: #f8fbf8; font-size: 22px; color: #28302b; cursor: pointer; flex: 0 0 auto;
+}
+.nav-btn:hover { background: #e8f1eb; }
+
+.badge-green {
+  font-size: 11px; font-weight: 600; color: #23533a;
+  background: #e2efe8; padding: 2px 9px; border-radius: 999px;
+}
+
+.date-input {
+  border: 1px solid #d9e3dc; background: #f8fbf8; border-radius: 9px;
+  padding: 7px 11px; font-size: 14px; color: #28302b; font-family: inherit; cursor: pointer;
+}
+
+.field-input {
+  width: 100%; padding: 13px; border: 1.5px solid #d9e3dc;
+  border-radius: 12px; font-size: 16px; background: #f8fbf8; outline: none; color: #28302b;
+}
+.field-input:focus { border-color: #2f6b4f; }
+.textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
+
+.time-picker {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 31;
+  background: #fff; border: 1px solid #d9e3dc; border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(40,58,48,.18); padding: 13px;
+  width: 288px; max-width: 86vw;
+}
+
+.picker-label {
+  font-size: 11px; font-weight: 700; color: #a4b1a8;
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 7px; text-align: center;
+}
+
+.picker-grid {
+  max-height: 172px; overflow-y: auto;
+  display: grid; grid-template-columns: repeat(2,1fr); gap: 4px;
+}
+
+.picker-cell:hover { background: #e8f1eb; }
+
+.save-footer {
+  position: fixed; left: 0; right: 0; bottom: 66px;
+  background: rgba(238,243,239,.94); backdrop-filter: blur(10px);
+  border-top: 1px solid #d9e3dc; padding: 11px 16px; z-index: 8;
+}
+
+.save-btn {
+  padding: 13px 28px; background: #2f6b4f; color: #fff; border: none;
+  border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 6px 16px rgba(47,107,79,.25); flex: 0 0 auto;
+}
+.save-btn:hover { background: #23533a; }
