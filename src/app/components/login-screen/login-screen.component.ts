@@ -25,4 +25,8 @@ export class LoginScreenComponent {
   async submit() {
     await this.state.login(this.email(), this.password());
   }
+
+  async loginWithGoogle() {
+    await this.state.loginWithGoogle();
+  }
 }

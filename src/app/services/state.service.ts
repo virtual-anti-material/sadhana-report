@@ -180,6 +180,21 @@ export class StateService {
     }
   }
 
+  async loginWithGoogle() {
+    this.authError.set('');
+    this.loading.set(true);
+    try {
+      await this.auth.loginWithGoogle();
+      // onAuthStateChanged handles _loadSession; Google accounts are always email-verified
+    } catch (e: any) {
+      if (e?.code !== 'auth/popup-closed-by-user' && e?.code !== 'auth/cancelled-popup-request') {
+        this.authError.set(this.authErrorMsg(e?.code));
+      }
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
   async logout() {
     await this.auth.logout();
     this.admTarget.set(null);

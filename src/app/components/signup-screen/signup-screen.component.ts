@@ -42,4 +42,9 @@ export class SignupScreenComponent {
     }
     await this.state.signup(this.email(), this.displayName().trim(), this.password());
   }
+
+  async loginWithGoogle() {
+    this.localError.set('');
+    await this.state.loginWithGoogle();
+  }
 }

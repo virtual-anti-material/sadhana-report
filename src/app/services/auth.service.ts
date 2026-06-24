@@ -6,6 +6,8 @@ import {
   signOut,
   updateProfile,
   onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
   User as FirebaseUser,
 } from 'firebase/auth';
 import { FirebaseService } from './firebase.service';
@@ -29,6 +31,12 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<FirebaseUser> {
     const cred = await signInWithEmailAndPassword(this.auth, email, password);
+    return cred.user;
+  }
+
+  async loginWithGoogle(): Promise<FirebaseUser> {
+    const provider = new GoogleAuthProvider();
+    const cred = await signInWithPopup(this.auth, provider);
     return cred.user;
   }
 
