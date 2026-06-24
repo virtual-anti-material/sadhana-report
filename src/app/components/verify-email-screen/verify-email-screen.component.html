@@ -1,0 +1,57 @@
+<div class="auth-outer">
+  <div class="auth-card-wrap">
+
+    <!-- Logo + Title -->
+    <div class="auth-hero">
+      <div class="auth-logo">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="#eef3ef">
+          <path d="M12 17.5 C8.4 16 4.8 13.4 3 9.8 C6.8 10 10 12.8 12 17.5 Z" fill-opacity=".5"/>
+          <path d="M12 17.5 C15.6 16 19.2 13.4 21 9.8 C17.2 10 14 12.8 12 17.5 Z" fill-opacity=".5"/>
+          <path d="M12 17.5 C9.6 14.2 7.8 10.8 7.4 6.8 C10.2 8.4 11.4 12.6 12 17.5 Z" fill-opacity=".8"/>
+          <path d="M12 17.5 C14.4 14.2 16.2 10.8 16.6 6.8 C13.8 8.4 12.6 12.6 12 17.5 Z" fill-opacity=".8"/>
+          <path d="M12 4 C13.4 8.5 13.4 13 12 17.5 C10.6 13 10.6 8.5 12 4 Z"/>
+        </svg>
+      </div>
+      <h1 class="auth-title">Sadhana Report</h1>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card">
+
+      <!-- Envelope icon -->
+      <div class="verify-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2f6b4f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="M2 7l10 7 10-7"/>
+        </svg>
+      </div>
+
+      <h2 class="auth-card-title">Verify your email</h2>
+      <p class="auth-card-sub">
+        We've sent a verification link to
+        <strong>{{ state.pendingEmail() }}</strong>.<br>
+        Click the link in the email, then come back and tap the button below.
+      </p>
+
+      @if (state.authError()) {
+        <div class="auth-error">{{ state.authError() }}</div>
+      }
+
+      @if (sent()) {
+        <div class="auth-success">Verification email resent — check your inbox.</div>
+      }
+
+      <button class="auth-btn" [disabled]="checking()" (click)="checkVerified()">
+        @if (checking()) { Checking… } @else { I've verified my email }
+      </button>
+
+      <div class="verify-actions">
+        <button class="auth-link" (click)="resend()">Resend email</button>
+        <span class="verify-sep">·</span>
+        <button class="auth-link" (click)="state.logout()">Sign out</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>

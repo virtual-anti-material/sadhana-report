@@ -6,11 +6,14 @@ netlify/functions/node_modules/
 dist/
 .angular/
 
-# Env / secrets — NEVER commit the service account key
+# Env / secrets
 .env
 .env.local
 *.json.bak
 sadhana-report-*.json
+
+# Generated environment files (created by scripts/gen-env.mjs)
+src/environments/
 
 # IDE
 .vscode/

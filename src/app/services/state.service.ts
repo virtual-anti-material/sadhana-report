@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
 import {
   Screen, User, Entry, EntryForm,
   FIELD_KEYS, REQUIRED_KEYS, FIELD_META, GROUPS,
@@ -8,10 +9,11 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class StateService {
-  private api = inject(ApiService);
+  private api  = inject(ApiService);
+  private auth = inject(AuthService);
 
   // ── raw state ────────────────────────────────────────────────────────────
-  screen       = signal<Screen>('name');
+  screen       = signal<Screen>('login');
   currentUser  = signal<User | null>(null);
   users        = signal<User[]>([]);
   entries      = signal<Entry[]>([]);
@@ -27,6 +29,8 @@ export class StateService {
   admMonth     = signal<string>('');
   admSel       = signal<string>('');
   loading      = signal<boolean>(false);
+  authError    = signal<string>('');
+  pendingEmail = signal<string>('');
   private _savedTimer: ReturnType<typeof setTimeout> | null = null;
 
   // ── helpers ──────────────────────────────────────────────────────────────
@@ -43,7 +47,7 @@ export class StateService {
   num(v: string | undefined) { const n = parseFloat(v ?? ''); return isNaN(n) ? 0 : n; }
   norm(s: string | undefined) { return (s == null ? '' : String(s)).trim().replace(/\s+/g, ' '); }
   sameName(a: string, b: string) { return this.norm(a).toLowerCase() === this.norm(b).toLowerCase(); }
-  entryKey(name: string, date: string) { return this.norm(name).toLowerCase() + '|' + date; }
+  entryKey(userId: string, date: string) { return userId + '|' + date; }
   hue(s: string) { s = this.norm(s); let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; }
   blankForm(): EntryForm { const o: EntryForm = {}; FIELD_KEYS.forEach(k => o[k] = ''); return o; }
   findEntry(name: string, date: string) { return this.entries().find(e => this.sameName(e.name, name) && e.date === date) ?? null; }
@@ -70,71 +74,139 @@ export class StateService {
     return '';
   }
 
+  private authErrorMsg(code: string): string {
+    switch (code) {
+      case 'auth/email-already-in-use':    return 'This email is already registered. Try signing in.';
+      case 'auth/invalid-email':           return 'Please enter a valid email address.';
+      case 'auth/weak-password':           return 'Password must be at least 6 characters.';
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':      return 'Incorrect email or password.';
+      case 'auth/too-many-requests':       return 'Too many attempts. Please try again later.';
+      case 'auth/user-disabled':           return 'This account has been disabled.';
+      default:                             return 'Something went wrong. Please try again.';
+    }
+  }
+
   // ── init ─────────────────────────────────────────────────────────────────
-  async init() {
+  init() {
+    this.auth.onAuthStateChanged(async (fbUser) => {
+      if (!fbUser) {
+        this.currentUser.set(null);
+        this.users.set([]);
+        this.entries.set([]);
+        this.screen.set('login');
+        return;
+      }
+      if (!fbUser.emailVerified) {
+        this.pendingEmail.set(fbUser.email ?? '');
+        this.screen.set('verify-email');
+        return;
+      }
+      await this._loadSession(fbUser.uid, fbUser.displayName ?? '', fbUser.email ?? '');
+    });
+  }
+
+  private async _loadSession(uid: string, displayName: string, email: string) {
     this.loading.set(true);
     const today = this.todayStr();
     const month = this.firstOfMonth(today);
+
+    // Start with auth data; Firestore may enrich it (e.g. admin type)
+    let u: User = { uid, name: displayName, email, type: 0 };
+
     try {
       const users = await this.api.getUsers();
       this.users.set(users);
-      // restore session
-      let stored: User | null = null;
-      try { stored = JSON.parse(localStorage.getItem('sadhana.user') || 'null'); } catch { /* */ }
-      if (stored?.name) {
-        const u = users.find(x => this.sameName(x.name, stored!.name)) ?? stored;
-        this.currentUser.set(u);
-        this.screen.set('form');
-        this.selectedDate.set(today);
-        this.calMonth.set(month); this.calSel.set(today); this.chartMonth.set(month);
-        // load entries
-        const entries = await this.api.getEntries(u.type === 1 ? undefined : u.name);
-        this.entries.set(entries);
-        this.form.set(this.entryToForm(u.name, today));
+      const found = users.find(x => x.uid === uid);
+      if (found) {
+        u = found;
+      } else {
+        try { await this.api.upsertUser(u); } catch { /* offline */ }
+        this.users.set([...users, u]);
       }
     } catch (e) {
-      console.error('init failed', e);
-      // fall back to name screen; users list will be empty (autocomplete won't work)
+      console.error('Could not load users from Firestore', e);
+      this.users.set([u]);
+    }
+
+    this.currentUser.set(u);
+    this.selectedDate.set(today);
+    this.calMonth.set(month); this.calSel.set(today); this.chartMonth.set(month);
+    this.errors.set([]); this.openTime.set(null); this.authError.set('');
+
+    try {
+      const entriesToLoad = await this.api.getEntries(u.type === 1 ? undefined : uid);
+      this.entries.set(entriesToLoad);
+    } catch (e) {
+      console.error('Could not load entries from Firestore', e);
+    }
+
+    this.form.set(this.entryToForm(u.name, today));
+    this.screen.set('form');   // always navigate — auth is the gate, not Firestore
+    this.loading.set(false);
+  }
+
+  // ── auth actions ─────────────────────────────────────────────────────────
+  async login(email: string, password: string) {
+    if (!email || !password) { this.authError.set('Please enter your email and password.'); return; }
+    this.authError.set('');
+    this.loading.set(true);
+    try {
+      const fbUser = await this.auth.login(email, password);
+      if (!fbUser.emailVerified) {
+        this.pendingEmail.set(fbUser.email ?? '');
+        this.screen.set('verify-email');
+      }
+      // onAuthStateChanged handles the verified case
+    } catch (e: any) {
+      this.authError.set(this.authErrorMsg(e?.code));
     } finally {
       this.loading.set(false);
     }
   }
 
-  // ── name screen ──────────────────────────────────────────────────────────
-  async continueName(nameInput: string) {
-    const raw = this.norm(nameInput);
-    if (!raw) return;
-    let users = this.users();
-    let u = users.find(x => this.sameName(x.name, raw));
-    if (!u) {
-      u = { name: raw, type: 0 };
-      users = [...users, u];
-      this.users.set(users);
-      try { await this.api.upsertUser(u); } catch { /* offline ok */ }
-    }
-    localStorage.setItem('sadhana.user', JSON.stringify(u));
-    const today = this.todayStr();
-    const month = this.firstOfMonth(today);
-    this.currentUser.set(u);
-    this.screen.set('form');
-    this.selectedDate.set(today);
-    this.calMonth.set(month); this.calSel.set(today); this.chartMonth.set(month);
-    this.errors.set([]); this.openTime.set(null);
-    // load this user's entries
+  async signup(email: string, displayName: string, password: string) {
+    this.authError.set('');
     this.loading.set(true);
     try {
-      const entries = await this.api.getEntries(u.type === 1 ? undefined : u.name);
-      this.entries.set(entries);
-    } catch { /* offline */ } finally { this.loading.set(false); }
-    this.form.set(this.entryToForm(u.name, today));
+      const fbUser = await this.auth.signup(email, displayName, password);
+      this.pendingEmail.set(fbUser.email ?? '');
+      this.screen.set('verify-email');
+    } catch (e: any) {
+      this.authError.set(this.authErrorMsg(e?.code));
+    } finally {
+      this.loading.set(false);
+    }
   }
 
-  switchUser() {
-    localStorage.removeItem('sadhana.user');
-    this.currentUser.set(null);
-    this.screen.set('name');
-    this.errors.set([]);
+  async logout() {
+    await this.auth.logout();
     this.admTarget.set(null);
+    // onAuthStateChanged resets screen to 'login'
+  }
+
+  async resendVerification() {
+    this.authError.set('');
+    try {
+      await this.auth.resendVerification();
+    } catch (e: any) {
+      this.authError.set(this.authErrorMsg(e?.code));
+    }
+  }
+
+  async checkEmailVerified() {
+    this.authError.set('');
+    try {
+      const fbUser = await this.auth.reloadUser();
+      if (fbUser?.emailVerified) {
+        await this._loadSession(fbUser.uid, fbUser.displayName ?? '', fbUser.email ?? '');
+      } else {
+        this.authError.set('Email not verified yet. Please click the link in your inbox.');
+      }
+    } catch (e: any) {
+      this.authError.set(this.authErrorMsg(e?.code));
+    }
   }
 
   // ── form screen ───────────────────────────────────────────────────────────
@@ -166,9 +238,9 @@ export class StateService {
     const missing = REQUIRED_KEYS.filter(k => !String(f[k] ?? '').trim());
     if (missing.length) { this.errors.set([...missing]); return; }
 
-    const entry: Entry = { name: u.name, date, ...f } as Entry;
-    const k = this.entryKey(u.name, date);
-    const filtered = this.entries().filter(e => this.entryKey(e.name, e.date) !== k);
+    const entry: Entry = { name: u.name, userId: u.uid, date, ...f } as Entry;
+    const k = this.entryKey(u.uid, date);
+    const filtered = this.entries().filter(e => this.entryKey(e.userId, e.date) !== k);
     filtered.push(entry);
     this.entries.set(filtered);
     this.errors.set([]);
@@ -389,7 +461,7 @@ export class StateService {
     const u = this.currentUser();
     const today = this.todayStr();
     return this.users()
-      .filter(m => !u || !this.sameName(m.name, u.name))
+      .filter(m => !u || m.uid !== u.uid)
       .map(m => {
         const es = this.entries().filter(e => this.sameName(e.name, m.name)).sort((a, b) => a.date < b.date ? 1 : -1);
         const last = es.length ? es[0].date : '';

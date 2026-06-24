@@ -1,8 +1,10 @@
-export type Screen = 'name' | 'form' | 'history' | 'progress' | 'admin';
+export type Screen = 'login' | 'signup' | 'verify-email' | 'form' | 'history' | 'progress' | 'admin';
 
 export interface User {
-  name: string;
-  type: number; // 0 = regular, 1 = admin
+  uid: string;
+  name: string;   // display name
+  email: string;
+  type: number;   // 0 = regular, 1 = admin
 }
 
 export type EntryForm = Record<string, string>;
@@ -10,6 +12,7 @@ export type EntryForm = Record<string, string>;
 export interface Entry extends EntryForm {
   date: string;
   name: string;
+  userId: string;
   sleepTime: string;
   wakeupTime: string;
   dayRest: string;

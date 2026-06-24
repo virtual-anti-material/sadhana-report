@@ -4,18 +4,9 @@
 
 [dev]
   framework = "#custom"
-  command = "ng serve"
+  command = "npm start"
   targetPort = 4200
   port = 8888
-
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
 
 [[redirects]]
   from = "/*"
