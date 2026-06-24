@@ -138,8 +138,11 @@ export class StateService {
     try {
       const entriesToLoad = await this.api.getEntries(u.type === 1 ? undefined : uid);
       this.entries.set(entriesToLoad);
-    } catch (e) {
-      console.error('Could not load entries from Firestore', e);
+    } catch (e: any) {
+      console.error('[Firestore] getEntries failed:', e?.code, e?.message);
+      if (e?.code === 'permission-denied') {
+        this.authError.set('Could not load your entries — Firestore rules may need updating. Check the console.');
+      }
     }
 
     this.form.set(this.entryToForm(u.name, today));
@@ -263,7 +266,11 @@ export class StateService {
     if (this._savedTimer) clearTimeout(this._savedTimer);
     this._savedTimer = setTimeout(() => this.saved.set(false), 1800);
 
-    try { await this.api.upsertEntry(entry); } catch { /* offline; local state already updated */ }
+    try {
+      await this.api.upsertEntry(entry);
+    } catch (e: any) {
+      console.error('[Firestore] upsertEntry failed:', e?.code, e?.message, e);
+    }
   }
 
   // ── calendar helpers ──────────────────────────────────────────────────────
