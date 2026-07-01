@@ -16,6 +16,7 @@ export interface Entry extends EntryForm {
   sleepTime: string;
   wakeupTime: string;
   dayRest: string;
+  exerciseDuration: string;
   chantEnd: string;
   rounds: string;
   hearingTopic: string;
@@ -24,13 +25,19 @@ export interface Entry extends EntryForm {
   readingDuration: string;
   serviceNames: string;
   serviceDuration: string;
+  jobDuration: string;
+  studyDuration: string;
+  socialMediaDuration: string;
+  moodPositive: string;
+  moodNegative: string;
   comments: string;
 }
 
 export const FIELD_KEYS = [
-  'sleepTime','wakeupTime','dayRest','chantEnd','rounds',
+  'sleepTime','wakeupTime','dayRest','exerciseDuration','chantEnd','rounds',
   'hearingTopic','hearingDuration','readingTopic','readingDuration',
-  'serviceNames','serviceDuration','comments',
+  'serviceNames','serviceDuration','jobDuration','studyDuration','socialMediaDuration',
+  'moodPositive','moodNegative','comments',
 ] as const;
 
 export const REQUIRED_KEYS = ['sleepTime','wakeupTime','rounds'] as const;
@@ -40,33 +47,45 @@ export interface FieldMeta {
   inputType?: string;
   numeric?: boolean;
   isTextarea?: boolean;
+  isChips?: boolean;
+  chipsMulti?: boolean;
+  chipOptions?: string[];
+  sectionHeader?: boolean;
   unit?: string;
   placeholder?: string;
   required?: boolean;
 }
 
 export const FIELD_META: Record<string, FieldMeta> = {
-  sleepTime:       { label: 'Previous night sleep time', inputType: 'time', required: true },
-  wakeupTime:      { label: 'Morning wake-up time',      inputType: 'time', required: true },
-  dayRest:         { label: 'Day rest',         numeric: true, unit: 'min',    placeholder: '0' },
-  chantEnd:        { label: 'Chanting end time',inputType: 'time' },
-  rounds:          { label: 'Chanting rounds',  numeric: true, unit: 'rounds', placeholder: '0', required: true },
-  hearingTopic:    { label: 'Hearing topic',    inputType: 'text', placeholder: 'e.g. SB 1.2.6' },
-  hearingDuration: { label: 'Hearing duration', numeric: true, unit: 'min',    placeholder: '0' },
-  readingTopic:    { label: 'Reading topic',    inputType: 'text', placeholder: 'e.g. Bhagavad-gita Ch. 2' },
-  readingDuration: { label: 'Reading duration', numeric: true, unit: 'min',    placeholder: '0' },
-  serviceNames:    { label: 'Service(s)',       inputType: 'text', placeholder: 'e.g. Deity cooking, cleaning' },
-  serviceDuration: { label: 'Service duration', numeric: true, unit: 'min',    placeholder: '0' },
-  comments:        { label: 'Comments & reflections', isTextarea: true, placeholder: 'How was your day? Anything to remember…' },
+  sleepTime:           { label: 'Previous night sleep time', inputType: 'time', required: true },
+  wakeupTime:          { label: 'Morning wake-up time',      inputType: 'time', required: true },
+  dayRest:             { label: 'Day rest duration',   numeric: true, unit: 'min', placeholder: '0' },
+  exerciseDuration:    { label: 'Exercise duration',   numeric: true, unit: 'min', placeholder: '0' },
+  chantEnd:            { label: 'Chanting end time',   inputType: 'time' },
+  rounds:              { label: 'Chanting rounds',     numeric: true, unit: 'rounds', placeholder: '0', required: true },
+  hearingTopic:        { label: 'Hearing topic',       inputType: 'text', placeholder: 'e.g. SB 1.2.6' },
+  hearingDuration:     { label: 'Hearing duration',    numeric: true, unit: 'min', placeholder: '0' },
+  readingTopic:        { label: 'Reading topic',       inputType: 'text', placeholder: 'e.g. Bhagavad-gita Ch. 2' },
+  readingDuration:     { label: 'Reading duration',    numeric: true, unit: 'min', placeholder: '0' },
+  serviceNames:        { label: 'Service(s)',           inputType: 'text', placeholder: 'e.g. Deity cooking, cleaning' },
+  serviceDuration:     { label: 'Service duration',    numeric: true, unit: 'min', placeholder: '0' },
+  jobDuration:         { label: 'Job duration',         numeric: true, unit: 'hrs', placeholder: '0' },
+  studyDuration:       { label: 'Study duration',       numeric: true, unit: 'hrs', placeholder: '0' },
+  socialMediaDuration: { label: 'Social Media / Entertainment / Time Waste duration', numeric: true, unit: 'min', placeholder: '0' },
+  moodHeader:          { label: 'Mood', sectionHeader: true },
+  moodPositive:        { label: 'Positive Chetna', isChips: true, chipsMulti: true,  chipOptions: ['Appreciative','Compassionate','Detached','Determined','Disciplined','Enthusiastic','Humble','Spiritually Absorbed','Valued Association'] },
+  moodNegative:        { label: 'Negative Chetna', isChips: true, chipsMulti: false, chipOptions: ['Angry','Egoistic','Envious','Greedy','Lazy','Lusty','Offensive','Over Eating','Time Wasting'] },
+  comments:            { label: 'Comments & reflections', isTextarea: true, placeholder: 'How was your day? Anything to remember…' },
 };
 
 export const GROUPS = [
-  { title: 'Rest & Sleep', keys: ['sleepTime','wakeupTime','dayRest'] },
-  { title: 'Chanting',     keys: ['chantEnd','rounds'] },
-  { title: 'Hearing',      keys: ['hearingTopic','hearingDuration'] },
-  { title: 'Reading',      keys: ['readingTopic','readingDuration'] },
-  { title: 'Service',      keys: ['serviceNames','serviceDuration'] },
-  { title: 'Reflections',  keys: ['comments'] },
+  { title: 'Rest & Sleep',     keys: ['sleepTime','wakeupTime','dayRest','exerciseDuration'] },
+  { title: 'Chanting',         keys: ['chantEnd','rounds'] },
+  { title: 'Hearing',          keys: ['hearingTopic','hearingDuration'] },
+  { title: 'Reading',          keys: ['readingTopic','readingDuration'] },
+  { title: 'Service',          keys: ['serviceNames','serviceDuration'] },
+  { title: 'Daily Activities', keys: ['jobDuration','studyDuration','socialMediaDuration'] },
+  { title: 'Reflections',      keys: ['moodHeader','moodPositive','moodNegative','comments'] },
 ] as const;
 
 export interface CalCell {
@@ -152,6 +171,13 @@ export interface FormField {
   isTextarea: boolean;
   isTime: boolean;
   isInput: boolean;
+  isChips: boolean;
+  chipsMulti: boolean;
+  chipOptions: string[];
+  selectedChips: string[];
+  onChipToggle: (chip: string) => void;
+  isSectionHeader: boolean;
+  isFullWidth: boolean;
   isError: boolean;
   borderColor: string;
   value: string;

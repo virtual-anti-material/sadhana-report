@@ -399,13 +399,18 @@ export class StateService {
 
     return GROUPS.map(g => ({
       title: g.title,
-      fields: g.keys.map(k => {
+      fields: (g.keys as readonly string[]).map(k => {
         const m = FIELD_META[k];
         const isTextarea = !!m.isTextarea;
+        const isChips = !!m.isChips;
+        const isSectionHeader = !!m.sectionHeader;
+        const chipsMulti = !!m.chipsMulti;
+        const chipOptions = m.chipOptions ?? [];
         const numeric = !!m.numeric;
         const isTime = m.inputType === 'time';
         const isError = errs.includes(k);
         const val = f[k] ?? '';
+        const selectedChips = isChips && val ? val.split('|').filter(Boolean) : [];
 
         const base: FormField = {
           key: k,
@@ -418,7 +423,13 @@ export class StateService {
           required: !!m.required,
           isTextarea,
           isTime,
-          isInput: !isTextarea && !isTime,
+          isInput: !isTextarea && !isTime && !isChips && !isSectionHeader,
+          isChips,
+          chipsMulti,
+          chipOptions,
+          selectedChips,
+          isSectionHeader,
+          isFullWidth: isChips || isSectionHeader || isTextarea,
           isError,
           borderColor: isError ? '#d9694e' : '#d9e3dc',
           value: val,
@@ -426,6 +437,16 @@ export class StateService {
             let v = (e.target as HTMLInputElement).value;
             if (numeric) v = v.replace(/[^0-9]/g, '');
             this.onFieldChange(k, v);
+          },
+          onChipToggle: (chip: string) => {
+            if (chipsMulti) {
+              const sel = val ? val.split('|').filter(Boolean) : [];
+              const idx = sel.indexOf(chip);
+              if (idx >= 0) sel.splice(idx, 1); else sel.push(chip);
+              this.onFieldChange(k, sel.join('|'));
+            } else {
+              this.onFieldChange(k, val === chip ? '' : chip);
+            }
           },
         };
 

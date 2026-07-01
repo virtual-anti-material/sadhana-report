@@ -29,74 +29,97 @@
         <h3 style="font-family:'Spectral',serif;font-weight:600;font-size:18px;margin:0 0 15px;color:#28302b">{{ group.title }}</h3>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
           @for (field of group.fields; track field.key) {
-            <div>
-              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px;gap:8px">
-                <label style="font-size:14.5px;font-weight:600;color:#45514a">
-                  {{ field.label }}
-                  @if (field.required) { <span style="color:#2f6b4f;font-weight:700"> *</span> }
-                </label>
-                @if (field.hasUnit) { <span style="font-size:12px;color:#a4b1a8;white-space:nowrap">{{ field.unit }}</span> }
-              </div>
+            <div [style.grid-column]="field.isFullWidth ? '1 / -1' : null">
 
-              @if (field.isTextarea) {
-                <textarea
-                  class="field-input textarea"
-                  [value]="field.value"
-                  (input)="field.onChange($event)"
-                  [placeholder]="field.placeholder"
-                ></textarea>
-              }
-
-              @if (field.isInput) {
-                <input
-                  class="field-input"
-                  [type]="field.inputType"
-                  [inputMode]="field.inputMode"
-                  [value]="field.value"
-                  (input)="field.onChange($event)"
-                  [placeholder]="field.placeholder"
-                  [style.border-color]="field.borderColor"
-                >
-              }
-
-              @if (field.isTime) {
-                <div style="position:relative">
-                  <div (click)="field.onToggle!()" [style]="field.fieldStyle">
-                    <span>{{ field.timeText }}</span>
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7d8a82" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="8.4"/><path d="M12 7.5 V12 L15.2 14"/>
-                    </svg>
-                  </div>
-                  @if (field.pickerOpen) {
-                    <div (click)="field.onClose!()" style="position:fixed;inset:0;z-index:30"></div>
-                    <div class="time-picker">
-                      <div style="display:flex;gap:11px">
-                        <div style="flex:1;min-width:0">
-                          <div class="picker-label">Hour</div>
-                          <div class="picker-grid">
-                            @for (h of field.hours; track h.label) {
-                              <div (click)="h.onClick()" [style]="h.style" class="picker-cell">{{ h.label }}</div>
-                            }
-                          </div>
-                        </div>
-                        <div style="width:1px;background:#e4ede7;flex:0 0 auto"></div>
-                        <div style="flex:1;min-width:0">
-                          <div class="picker-label">Minute</div>
-                          <div class="picker-grid">
-                            @for (mn of field.minutes; track mn.label) {
-                              <div (click)="mn.onClick()" [style]="mn.style" class="picker-cell">{{ mn.label }}</div>
-                            }
-                          </div>
-                        </div>
-                      </div>
-                      <div style="font-size:11.5px;color:#a4b1a8;text-align:center;margin-top:9px;padding-top:9px;border-top:1px solid #e4ede7">24-hour time · tap to select</div>
-                    </div>
-                  }
+              @if (field.isSectionHeader) {
+                <div style="display:flex;align-items:center;gap:10px;padding:4px 0 2px">
+                  <span style="font-size:15px;font-weight:700;color:#2f6b4f">{{ field.label }}</span>
+                  <span style="font-size:12px;color:#a4b1a8;font-weight:400">optional</span>
+                  <div style="flex:1;height:1px;background:#e4ede7"></div>
                 </div>
               }
 
-              @if (field.isError) {
-                <div style="font-size:12.5px;color:#c0492f;margin-top:5px;font-weight:600">This field is required.</div>
+              @if (!field.isSectionHeader) {
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px;gap:8px">
+                  <label style="font-size:14.5px;font-weight:600;color:#45514a">
+                    {{ field.label }}
+                    @if (field.required) { <span style="color:#2f6b4f;font-weight:700"> *</span> }
+                  </label>
+                  @if (field.hasUnit) { <span style="font-size:12px;color:#a4b1a8;white-space:nowrap">{{ field.unit }}</span> }
+                </div>
+
+                @if (field.isTextarea) {
+                  <textarea
+                    class="field-input textarea"
+                    [value]="field.value"
+                    (input)="field.onChange($event)"
+                    [placeholder]="field.placeholder"
+                  ></textarea>
+                }
+
+                @if (field.isInput) {
+                  <input
+                    class="field-input"
+                    [type]="field.inputType"
+                    [inputMode]="field.inputMode"
+                    [value]="field.value"
+                    (input)="field.onChange($event)"
+                    [placeholder]="field.placeholder"
+                    [style.border-color]="field.borderColor"
+                  >
+                }
+
+                @if (field.isTime) {
+                  <div style="position:relative">
+                    <div (click)="field.onToggle!()" [style]="field.fieldStyle">
+                      <span>{{ field.timeText }}</span>
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7d8a82" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="8.4"/><path d="M12 7.5 V12 L15.2 14"/>
+                      </svg>
+                    </div>
+                    @if (field.pickerOpen) {
+                      <div (click)="field.onClose!()" style="position:fixed;inset:0;z-index:30"></div>
+                      <div class="time-picker">
+                        <div style="display:flex;gap:11px">
+                          <div style="flex:1;min-width:0">
+                            <div class="picker-label">Hour</div>
+                            <div class="picker-grid">
+                              @for (h of field.hours; track h.label) {
+                                <div (click)="h.onClick()" [style]="h.style" class="picker-cell">{{ h.label }}</div>
+                              }
+                            </div>
+                          </div>
+                          <div style="width:1px;background:#e4ede7;flex:0 0 auto"></div>
+                          <div style="flex:1;min-width:0">
+                            <div class="picker-label">Minute</div>
+                            <div class="picker-grid">
+                              @for (mn of field.minutes; track mn.label) {
+                                <div (click)="mn.onClick()" [style]="mn.style" class="picker-cell">{{ mn.label }}</div>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                        <div style="font-size:11.5px;color:#a4b1a8;text-align:center;margin-top:9px;padding-top:9px;border-top:1px solid #e4ede7">24-hour time · tap to select</div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                @if (field.isChips) {
+                  <div style="display:flex;flex-wrap:wrap;gap:8px">
+                    @for (chip of field.chipOptions; track chip) {
+                      <button type="button" (click)="field.onChipToggle(chip)"
+                        [style]="field.selectedChips.includes(chip)
+                          ? 'padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;border:2px solid #2f6b4f;background:#2f6b4f;color:#fff;cursor:pointer;line-height:1.4'
+                          : 'padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;border:2px solid #d9e3dc;background:#f8fbf8;color:#45514a;cursor:pointer;line-height:1.4'"
+                      >{{ chip }}</button>
+                    }
+                  </div>
+                }
+
+                @if (field.isError) {
+                  <div style="font-size:12.5px;color:#c0492f;margin-top:5px;font-weight:600">This field is required.</div>
+                }
               }
             </div>
           }
