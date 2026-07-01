@@ -74,7 +74,7 @@ export const FIELD_META: Record<string, FieldMeta> = {
   socialMediaDuration: { label: 'Social Media / Entertainment / Time Waste duration', numeric: true, unit: 'min', placeholder: '0' },
   moodHeader:          { label: 'Mood', sectionHeader: true },
   moodPositive:        { label: 'Positive Chetna', isChips: true, chipsMulti: true,  chipOptions: ['Appreciative','Compassionate','Detached','Determined','Disciplined','Enthusiastic','Humble','Spiritually Absorbed','Valued Association'] },
-  moodNegative:        { label: 'Negative Chetna', isChips: true, chipsMulti: false, chipOptions: ['Angry','Egoistic','Envious','Greedy','Lazy','Lusty','Offensive','Over Eating','Time Wasting'] },
+  moodNegative:        { label: 'Negative Chetna', isChips: true, chipsMulti: true,  chipOptions: ['Angry','Egoistic','Envious','Greedy','Lazy','Lusty','Offensive','Over Eating','Time Wasting'] },
   comments:            { label: 'Comments & reflections', isTextarea: true, placeholder: 'How was your day? Anything to remember…' },
 };
 

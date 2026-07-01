@@ -57,8 +57,9 @@ export class StateService {
     if (e) FIELD_KEYS.forEach(k => { o[k] = e[k] ?? ''; });
     return o;
   }
-  disp(v: string | undefined, m: { unit?: string }) {
+  disp(v: string | undefined, m: { unit?: string; isChips?: boolean }) {
     if (v == null || String(v).trim() === '') return '—';
+    if (m.isChips) return v.split('|').filter(Boolean).join(', ') || '—';
     let out = String(v);
     if (m.unit) out += ' ' + m.unit;
     return out;
