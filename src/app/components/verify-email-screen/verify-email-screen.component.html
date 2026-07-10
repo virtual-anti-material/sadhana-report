@@ -31,6 +31,7 @@
         We've sent a verification link to
         <strong>{{ state.pendingEmail() }}</strong>.<br>
         Click the link in the email, then come back and tap the button below.
+        If you don't see it, check your spam or junk folder.
       </p>
 
       @if (state.authError()) {
@@ -38,7 +39,7 @@
       }
 
       @if (sent()) {
-        <div class="auth-success">Verification email resent — check your inbox.</div>
+        <div class="auth-success">Verification email resent — check your inbox and spam folder.</div>
       }
 
       <button class="auth-btn" [disabled]="checking()" (click)="checkVerified()">

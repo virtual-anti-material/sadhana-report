@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification,
+  sendPasswordResetEmail,
   signOut,
   updateProfile,
   onAuthStateChanged,
@@ -47,6 +48,10 @@ export class AuthService {
   async resendVerification(): Promise<void> {
     const user = this.auth.currentUser;
     if (user) await sendEmailVerification(user);
+  }
+
+  async resetPassword(email: string): Promise<void> {
+    await sendPasswordResetEmail(this.auth, email);
   }
 
   async reloadUser(): Promise<FirebaseUser | null> {

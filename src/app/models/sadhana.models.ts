@@ -1,4 +1,4 @@
-export type Screen = 'login' | 'signup' | 'verify-email' | 'form' | 'history' | 'progress' | 'admin';
+export type Screen = 'login' | 'signup' | 'verify-email' | 'forgot-password' | 'form' | 'history' | 'progress' | 'admin';
 
 export interface User {
   uid: string;
@@ -30,6 +30,8 @@ export interface Entry extends EntryForm {
   socialMediaDuration: string;
   moodPositive: string;
   moodNegative: string;
+  moodPositiveOther: string;
+  moodNegativeOther: string;
   comments: string;
 }
 
@@ -37,7 +39,7 @@ export const FIELD_KEYS = [
   'sleepTime','wakeupTime','dayRest','exerciseDuration','chantEnd','rounds',
   'hearingTopic','hearingDuration','readingTopic','readingDuration',
   'serviceNames','serviceDuration','jobDuration','studyDuration','socialMediaDuration',
-  'moodPositive','moodNegative','comments',
+  'moodPositive','moodNegative','moodPositiveOther','moodNegativeOther','comments',
 ] as const;
 
 export const REQUIRED_KEYS = ['sleepTime','wakeupTime','rounds'] as const;
@@ -54,6 +56,7 @@ export interface FieldMeta {
   unit?: string;
   placeholder?: string;
   required?: boolean;
+  othersKey?: string;
 }
 
 export const FIELD_META: Record<string, FieldMeta> = {
@@ -73,8 +76,10 @@ export const FIELD_META: Record<string, FieldMeta> = {
   studyDuration:       { label: 'Study duration',       numeric: true, unit: 'hrs', placeholder: '0' },
   socialMediaDuration: { label: 'Social Media / Entertainment / Time Waste duration', numeric: true, unit: 'min', placeholder: '0' },
   moodHeader:          { label: 'Mood', sectionHeader: true },
-  moodPositive:        { label: 'Positive Chetna', isChips: true, chipsMulti: true,  chipOptions: ['Appreciative','Compassionate','Detached','Determined','Disciplined','Enthusiastic','Humble','Spiritually Absorbed','Valued Association'] },
-  moodNegative:        { label: 'Negative Chetna', isChips: true, chipsMulti: true,  chipOptions: ['Angry','Egoistic','Envious','Greedy','Lazy','Lusty','Offensive','Over Eating','Time Wasting'] },
+  moodPositive:        { label: 'Positive Chetna', isChips: true, chipsMulti: true, othersKey: 'moodPositiveOther', chipOptions: ['Appreciative','Compassionate','Detached','Determined','Disciplined','Enthusiastic','Grateful','Humble','Spiritually Absorbed','Valued Association','Others'] },
+  moodNegative:        { label: 'Negative Chetna', isChips: true, chipsMulti: true, othersKey: 'moodNegativeOther', chipOptions: ['Angry','Egoistic','Envious','Greedy','Lazy','Lusty','Offensive','Over Eating','Time Wasting','Others'] },
+  moodPositiveOther:   { label: 'Other positive mood', inputType: 'text', placeholder: 'Describe your mood…' },
+  moodNegativeOther:   { label: 'Other negative mood', inputType: 'text', placeholder: 'Describe your mood…' },
   comments:            { label: 'Comments & reflections', isTextarea: true, placeholder: 'How was your day? Anything to remember…' },
 };
 
@@ -182,6 +187,9 @@ export interface FormField {
   borderColor: string;
   value: string;
   onChange: (e: Event) => void;
+  showOthers?: boolean;
+  othersValue?: string;
+  onOthersChange?: (e: Event) => void;
   // time picker extras
   timeText?: string;
   pickerOpen?: boolean;

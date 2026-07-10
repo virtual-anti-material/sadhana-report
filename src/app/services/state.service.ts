@@ -205,6 +205,21 @@ export class StateService {
     // onAuthStateChanged resets screen to 'login'
   }
 
+  async resetPassword(email: string): Promise<boolean> {
+    if (!email) { this.authError.set('Please enter your email address.'); return false; }
+    this.authError.set('');
+    this.loading.set(true);
+    try {
+      await this.auth.resetPassword(email);
+      return true;
+    } catch (e: any) {
+      this.authError.set(this.authErrorMsg(e?.code));
+      return false;
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
   async resendVerification() {
     this.authError.set('');
     try {
@@ -443,13 +458,27 @@ export class StateService {
             if (chipsMulti) {
               const sel = val ? val.split('|').filter(Boolean) : [];
               const idx = sel.indexOf(chip);
-              if (idx >= 0) sel.splice(idx, 1); else sel.push(chip);
+              if (idx >= 0) {
+                sel.splice(idx, 1);
+                if (chip === 'Others' && m.othersKey) this.onFieldChange(m.othersKey, '');
+              } else {
+                sel.push(chip);
+              }
               this.onFieldChange(k, sel.join('|'));
             } else {
               this.onFieldChange(k, val === chip ? '' : chip);
             }
           },
         };
+
+        if (isChips && m.othersKey) {
+          const ok = m.othersKey;
+          base.showOthers = selectedChips.includes('Others');
+          base.othersValue = f[ok] ?? '';
+          base.onOthersChange = (e: Event) => {
+            this.onFieldChange(ok, (e.target as HTMLInputElement).value);
+          };
+        }
 
         if (isTime) {
           const parts = /^(\d{1,2}):(\d{2})$/.exec(val);

@@ -21,6 +21,7 @@ export class LoginScreenComponent {
   togglePw() { this.showPw.update(v => !v); }
 
   goToSignup() { this.state.authError.set(''); this.state.screen.set('signup'); }
+  goToForgotPassword() { this.state.authError.set(''); this.state.screen.set('forgot-password'); }
 
   async submit() {
     await this.state.login(this.email(), this.password());
